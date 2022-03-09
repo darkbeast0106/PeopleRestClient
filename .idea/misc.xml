@@ -3,7 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/bence/AndroidStudioProjects/PeopleRestClient/app/src/main/res/layout/activity_main.xml" value="0.15760869565217392" />
+        <entry key="..\:/Users/bence/AndroidStudioProjects/PeopleRestClient/app/src/main/res/layout/activity_main.xml" value="0.4" />
+        <entry key="..\:/Users/bence/AndroidStudioProjects/PeopleRestClient/app/src/main/res/layout/person_list_item.xml" value="0.4" />
       </map>
     </option>
   </component>
