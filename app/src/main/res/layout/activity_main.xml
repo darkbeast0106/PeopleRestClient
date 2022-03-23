@@ -22,6 +22,14 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="ID"
+            android:inputType="number"
+            android:visibility="gone"
+            android:id="@+id/id"
+            />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:hint="Név"
             android:inputType="textPersonName"
             android:id="@+id/name"
@@ -46,6 +54,12 @@
             android:layout_height="wrap_content"
             android:text="Hozzáad"
             android:id="@+id/btnHozzad"
+            />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Módosít"
+            android:id="@+id/btnModosit"
             />
         <Button
             android:layout_width="match_parent"

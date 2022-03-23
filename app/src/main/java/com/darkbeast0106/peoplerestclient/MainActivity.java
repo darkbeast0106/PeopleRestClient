@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     List<Person> people = new ArrayList<>();
     private String url = "https://retoolapi.dev/wJWWAd/people";
+    //private String url = "http://10.0.2.2:8000/api/people";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.personForm.setVisibility(View.GONE);
+        binding.btnModosit.setVisibility(View.GONE);
         binding.btnUj.setOnClickListener(view -> {
             binding.personForm.setVisibility(View.VISIBLE);
             binding.btnUj.setVisibility(View.GONE);
@@ -47,33 +49,61 @@ public class MainActivity extends AppCompatActivity {
         binding.btnHozzad.setOnClickListener(view -> {
             emberHozzadasa();
         });
+        binding.btnModosit.setOnClickListener(view -> {
+            emberModositasa();
+        });
         binding.adatok.setAdapter(new PersonAdapter());
         RequestTask task = new RequestTask(url, "GET");
         task.execute();
     }
+    private boolean validacio(String name, String email, String ageText){
+        if (name.isEmpty()) {
+            Toast.makeText(this, "Név megadása kötelező", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (email.isEmpty()) {
+            Toast.makeText(this, "E-mail megadása kötelező", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (ageText.isEmpty()) {
+            Toast.makeText(this, "Életkor megadása kötelező", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private void emberModositasa() {
+        int id = Integer.parseInt(binding.id.getText().toString().trim());
+        String name = binding.name.getText().toString().trim();
+        String email = binding.email.getText().toString().trim();
+        String ageText = binding.age.getText().toString().trim();
+        if (!validacio(name,email,ageText)){
+            return;
+        }
+        int age = Integer.parseInt(ageText);
+        Person person = new Person(id, name, email, age);
+        Gson jsonConvert = new Gson();
+        RequestTask task = new RequestTask(url+"/"+id,
+                "PUT", jsonConvert.toJson(person));
+        task.execute();
+    }
 
     private void urlapAlaphelyzetbe() {
+        binding.id.setText("");
         binding.name.setText("");
         binding.email.setText("");
         binding.age.setText("");
         binding.personForm.setVisibility(View.GONE);
         binding.btnUj.setVisibility(View.VISIBLE);
+        binding.btnHozzad.setVisibility(View.VISIBLE);
+        binding.btnModosit.setVisibility(View.GONE);
     }
 
     private void emberHozzadasa() {
         String name = binding.name.getText().toString().trim();
         String email = binding.email.getText().toString().trim();
         String ageText = binding.age.getText().toString().trim();
-        if (name.isEmpty()) {
-            Toast.makeText(this, "Név megadása kötelező", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (email.isEmpty()) {
-            Toast.makeText(this, "E-mail megadása kötelező", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (ageText.isEmpty()) {
-            Toast.makeText(this, "Életkor megadása kötelező", Toast.LENGTH_SHORT).show();
+        if (!validacio(name,email,ageText)){
             return;
         }
         int age = Integer.parseInt(ageText);
@@ -103,6 +133,16 @@ public class MainActivity extends AppCompatActivity {
             listItemBinding.delete.setOnClickListener(view -> {
                 RequestTask task = new RequestTask(url, "DELETE", String.valueOf(actual.getId()));
                 task.execute();
+            });
+            listItemBinding.update.setOnClickListener(view -> {
+                binding.id.setText(String.valueOf(actual.getId()));
+                binding.name.setText(actual.getName());
+                binding.email.setText(actual.getEmail());
+                binding.age.setText(String.valueOf(actual.getAge()));
+                binding.btnModosit.setVisibility(View.VISIBLE);
+                binding.btnHozzad.setVisibility(View.GONE);
+                binding.btnUj.setVisibility(View.GONE);
+                binding.personForm.setVisibility(View.VISIBLE);
             });
             return listItemBinding.getRoot().getRootView();
         }
@@ -143,7 +183,8 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             } catch (IOException e) {
-                Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                runOnUiThread(() ->
+                Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_SHORT).show());
             }
             /*
             try {
@@ -184,6 +225,10 @@ public class MainActivity extends AppCompatActivity {
                     urlapAlaphelyzetbe();
                     break;
                 case "PUT":
+                    Person updatePerson = converter.fromJson(response.getContent(), Person.class);
+                    people.replaceAll(person1 ->
+                            person1.getId() == updatePerson.getId() ? updatePerson : person1);
+                    urlapAlaphelyzetbe();
                     break;
                 case "DELETE":
                     int id = Integer.parseInt(requestParams);
